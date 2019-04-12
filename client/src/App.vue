@@ -9,8 +9,19 @@
 <script>
 export default {
     name: 'App',
-    data () {
-        return {};
+    created() {
+        this.setData();
+    },
+    destroyed() {
+        // this.$store.dispatch('removeWatchers');
+    },
+    methods: {
+        async setData() {
+            await this.$store.dispatch('setProvider');
+            await this.$store.dispatch('setContract');
+            await this.$store.dispatch('setFsData');
+            // this.$store.dispatch('watchAll');
+        },
     },
 }
 </script>
