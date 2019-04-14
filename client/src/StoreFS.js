@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import dTypeFS from './constants';
+import dTypeFS from './namespace';
 import {getProvider, getContract,  normalizeEthersObject} from './blockchain';
 import {changeTreeItem, fileToTree} from './utils.js';
 
