@@ -17,16 +17,12 @@ export default {
             return this.$store.state.fsTree;
         },
     },
-    created() {
-        console.log(this.$store.state);
-    },
     methods: {
         onRemove(item) {
             console.log('onRemove', item);
         },
-        onAdd(item) {
-            console.log('onAdd', item);
-            // this.$store.contract.insert(item);
+        onAdd(file) {
+            this.$store.state.contract.insert(file);
         },
     }
 }

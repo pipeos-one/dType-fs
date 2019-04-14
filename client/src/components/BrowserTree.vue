@@ -17,11 +17,32 @@
                     {{ files[item.file] }}
                 </v-icon>
             </template>
+            <template v-slot:append="{ item, active }">
+                <template v-if="active || onAction === item.id">
+                    <v-btn flat icon @click="onRemove(item)">
+                        <v-icon>fa-trash</v-icon>
+                    </v-btn>
+                    <v-btn flat icon v-if="item.file == 0" @click="onAdd(item)">
+                        <v-icon>fa-plus</v-icon>
+                    </v-btn>
+
+                    <v-btn flat icon v-if="item.file != 0" @click="onOpen(item)">
+                        <v-icon>fa-external-link-alt</v-icon>
+                    </v-btn>
+                </template>
+
+                <!-- <v-btn flat icon v-if="active">
+                    <v-icon>fa-chevron-up</v-icon>
+                </v-btn>
+                <v-btn flat icon v-if="active">
+                    <v-icon>fa-chevron-down</v-icon>
+                </v-btn> -->
+            </template>
         </v-treeview>
         <v-dialog v-model="dialogAdd" width="500">
             <v-card>
                 <FileUpload
-                    :fileChangedCallback="onFile"
+                    @upload-success="onFile"
                 />
             </v-card>
         </v-dialog>
@@ -29,10 +50,17 @@
 </template>
 
 <script>
+import {filePointerToUrl} from '../utils';
+import FileUpload from './FileUpload';
 
 export default {
     props: ['items'],
+    components: {
+        FileUpload,
+    },
     data: () => ({
+        dialogAdd: false,
+        onAction: false,
         open: ['public'],
         files: {
             0: 'fa-folder',
@@ -47,6 +75,28 @@ export default {
             txt: 'fa-file-alt',
         },
         tree: [],
+        parent: null,
     }),
+    methods: {
+        onRemove(item) {
+            this.$emit('remove', item);
+        },
+        onAdd(item) {
+            this.onAction = item.id;
+            this.dialogAdd = true;
+            this.parent = item;
+        },
+        onOpen(item) {
+            let uri = filePointerToUrl(item.fileType.pointer);
+            window.open(uri, '_blank');
+        },
+        onFile(pointer) {
+            this.$emit('add', {
+                pointer,
+                parentKey: this.parent.fileType.dataHash,
+                filesPerFolder: [],
+            });
+        },
+    }
 }
 </script>
