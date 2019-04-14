@@ -14,7 +14,7 @@
                     {{ open ? 'fa-folder-open' : 'fa-folder' }}
                 </v-icon>
                 <v-icon v-else>
-                    {{ files[item.file] }}
+                    {{ files[item.file] || files.default }}
                 </v-icon>
             </template>
             <template v-slot:append="{ item, active }">
@@ -26,7 +26,7 @@
                         <v-icon>fa-plus</v-icon>
                     </v-btn>
 
-                    <v-btn flat icon v-if="item.file != 0" @click="onOpen(item)">
+                    <v-btn flat icon @click="onOpen(item)">
                         <v-icon>fa-external-link-alt</v-icon>
                     </v-btn>
                 </template>
@@ -66,6 +66,7 @@ export default {
             0: 'fa-folder',
             1: 'fa-file-alt',
             2: 'fa-file-alt',
+            default: 'fa-star',
             html: 'fa-html5',
             js: 'fa-node-js',
             json: 'fa-json',
@@ -91,6 +92,7 @@ export default {
             window.open(uri, '_blank');
         },
         onFile(pointer) {
+            this.dialogAdd = false;
             this.$emit('add', {
                 pointer,
                 parentKey: this.parent.fileType.dataHash,

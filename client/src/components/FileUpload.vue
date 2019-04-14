@@ -7,6 +7,12 @@
         ></v-select>
         <v-text-field v-if='postURL' v-model='postURL' label='gateway url'></v-text-field>
 
+        <v-checkbox
+            v-if='storageOption != "uri"'
+            v-model="isFolder"
+            label="is folder"
+        ></v-checkbox>
+
         <MultiFileUploader
             v-if='storageOption != "uri"'
             :postURL="postURL"
@@ -43,6 +49,7 @@ export default {
         extensions: Object.keys(EXTENSION_TO_UINT),
         name: '',
         extension: Object.keys(EXTENSION_TO_UINT)[1],
+        isFolder: false,
     }),
     watch: {
         storageOption() {
@@ -53,7 +60,12 @@ export default {
         onLoaded(file) {
             let name = file.name.split('.');
             this.filePointer.name = name[0];
-            this.filePointer.extension = EXTENSION_TO_UINT[name[1]];
+
+            if (this.isFolder) {
+                this.filePointer.extension = 0;
+            } else {
+                this.filePointer.extension = EXTENSION_TO_UINT[name[1]];
+            }
         },
         onUploadSuccess(result) {
             this.filePointer[this.storageOption].protocol = 1;
