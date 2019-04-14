@@ -1,13 +1,10 @@
-const contractsMetadata = require('../../../dType/contracts/build/contracts/FileTypeStorage.json');
-const privateKey = require('../private/privateKey.json');
+export const EMPTY_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
-console.log('contractsMetadata', contractsMetadata);
-const dTypeFS = {
-    contract: contractsMetadata,
-    from: {
-        address: '0xCd9492Cdae7E8F8B5a648c6E15c4005C4cd9028b',
-        privateKey: privateKey.privateKey,
-    },
+export const SWARM_PROTOCOL = {
+    0: 'bzz',
+    1: 'bzz-raw',
 };
+export const SWARM_GATEWAY = 'https://swarm-gateways.net';
 
-export default dTypeFS;
+export const IPFS_GATEWAY = 'https://gateway.ipfs.io';
+export const IPFS_PROTOCOL = {0: 'ipfs'};
