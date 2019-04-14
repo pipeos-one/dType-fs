@@ -1,5 +1,9 @@
 <template>
-    <BrowserTree :items='fsTree'/>
+    <BrowserTree
+        :items='fsTree'
+        v-on:remove="onRemove"
+        v-on:add="onAdd"
+    />
 </template>
 
 <script>
@@ -7,19 +11,7 @@ import BrowserTree from '../components/BrowserTree';
 
 export default {
     components: {BrowserTree},
-    data: () => ({
-        open: ['public'],
-        files: {
-            html: 'html5',
-            js: 'node-js',
-            json: 'json',
-            md: 'markdown',
-            pdf: 'file-pdf',
-            png: 'image',
-            txt: 'file-alt',
-        },
-        tree: [],
-    }),
+    data: () => ({}),
     computed: {
         fsTree() {
             return this.$store.state.fsTree;
@@ -28,5 +20,14 @@ export default {
     created() {
         console.log(this.$store.state);
     },
+    methods: {
+        onRemove(item) {
+            console.log('onRemove', item);
+        },
+        onAdd(item) {
+            console.log('onAdd', item);
+            // this.$store.contract.insert(item);
+        },
+    }
 }
 </script>
