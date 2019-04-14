@@ -4,6 +4,7 @@ import {
     SWARM_GATEWAY,
     IPFS_PROTOCOL,
     IPFS_GATEWAY,
+    UINT_TO_EXTENSION,
 } from './constants';
 
 export const changeTreeItem = (tree, file, path, callback) => {
@@ -23,7 +24,7 @@ export const changeTreeItem = (tree, file, path, callback) => {
 export const fileToTree = (file) => {
     return {
         id: file.index,
-        name: file.pointer.name,
+        name: `${file.pointer.name}.${UINT_TO_EXTENSION[file.pointer.extension]}`,
         file: file.pointer.extension,
         children: file.children || [],
         fileType: file,
