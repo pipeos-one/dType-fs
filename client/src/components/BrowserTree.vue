@@ -12,12 +12,14 @@
             active-class="grey lighten-4 indigo--text"
         >
             <template v-slot:prepend="{ item, open }">
-                <v-icon v-if="item.file == 0">
-                    {{ open ? 'fa-folder-open' : 'fa-folder' }}
-                </v-icon>
-                <v-icon v-else>
-                    {{ files[item.file] || files.default }}
-                </v-icon>
+                <div class="iconW">
+                    <v-icon v-if="item.file == 0">
+                        {{ open ? 'fa-folder-open' : 'fa-folder' }}
+                    </v-icon>
+                    <v-icon v-else>
+                        {{ files[item.file] || files.default }}
+                    </v-icon>
+                </div>
             </template>
             <template v-slot:append="{ item, active }">
                 <template v-if="active || onAction === item.id">
@@ -112,3 +114,13 @@ export default {
     }
 }
 </script>
+
+<style>
+.iconW {
+    width: 30px;
+    padding-left: 4px;
+}
+.v-treeview-node__label {
+    max-width: 150px;
+}
+</style>
