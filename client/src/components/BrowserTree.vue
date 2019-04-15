@@ -43,7 +43,7 @@
                 </v-btn> -->
             </template>
         </v-treeview>
-        <v-dialog v-model="dialogAdd" width="500">
+        <v-dialog v-model="dialogAdd" width="600">
             <v-card>
                 <FileUpload
                     @upload-success="onFile"
@@ -89,6 +89,9 @@ export default {
                 this.$refs.fileTree.updateAll(true);
             }, 2000);
         },
+        dialogAdd() {
+            this.onAction = false;
+        }
     },
     methods: {
         onRemove(item) {

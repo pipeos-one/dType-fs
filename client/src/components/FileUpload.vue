@@ -1,39 +1,61 @@
 <template>
-    <div>
-        <v-select
-            v-model="storageOption"
-            :items="['swarm', 'ipfs', 'uri']"
-            label="Storage option"
-        ></v-select>
-        <v-text-field v-if='postURL' v-model='postURL' label='gateway url'></v-text-field>
-
-        <v-checkbox
-            v-if='storageOption != "uri"'
-            v-model="isFolder"
-            label="is folder"
-        ></v-checkbox>
-
-        <MultiFileUploader
-            v-if='storageOption != "uri"'
-            :postURL="postURL"
-            successMessagePath=""
-            errorMessagePath=""
-            @loaded="onLoaded"
-            @upload-success='onUploadSuccess'
-            @upload-error="onUploadError"
-        />
-
-        <v-text-field v-if='storageOption == "uri"' v-model='name' label='file name'></v-text-field>
-        <v-select
-            v-if='storageOption == "uri"'
-            v-model="extension"
-            :items="extensions"
-            label="file extension"
-        ></v-select>
-        <v-btn flat icon v-if='storageOption == "uri"' @click="onUpload">
-            <v-icon>fa-upload</v-icon>
-        </v-btn>
-    </div>
+    <v-container>
+        <v-layout row>
+            <v-flex xs5>
+                <v-select
+                    v-model="storageOption"
+                    :items="['swarm', 'ipfs', 'uri']"
+                    label="Storage option"
+                ></v-select>
+            </v-flex>
+            <v-flex xs6 offset-xs1>
+                <v-text-field v-if='postURL' v-model='postURL' label='gateway url'></v-text-field>
+            </v-flex>
+        </v-layout>
+        <v-layout row>
+            <v-flex xs12>
+                <v-checkbox
+                    v-if='storageOption != "uri"'
+                    v-model="isFolder"
+                    label="is folder"
+                ></v-checkbox>
+            </v-flex>
+        </v-layout>
+        <v-layout row>
+            <v-flex xs12>
+                <MultiFileUploader
+                    v-if='storageOption != "uri"'
+                    :postURL="postURL"
+                    :maxItems="1"
+                    successMessagePath=""
+                    errorMessagePath=""
+                    @loaded="onLoaded"
+                    @upload-success='onUploadSuccess'
+                    @upload-error="onUploadError"
+                />
+            </v-flex>
+        </v-layout>
+        <v-layout row>
+            <v-flex xs5>
+                <v-select
+                    v-if='storageOption == "uri"'
+                    v-model="extension"
+                    :items="extensions"
+                    label="file extension"
+                ></v-select>
+            </v-flex>
+            <v-flex xs6 offset-xs1>
+                <v-text-field v-if='storageOption == "uri"' v-model='name' label='file name'></v-text-field>
+            </v-flex>
+        </v-layout>
+        <v-layout row>
+            <v-flex xs12>
+                <v-btn flat icon v-if='storageOption == "uri"' @click="onUpload">
+                    <v-icon>fa-upload</v-icon>
+                </v-btn>
+            </v-flex>
+        </v-layout>
+    </v-container>
 </template>
 
 <script>

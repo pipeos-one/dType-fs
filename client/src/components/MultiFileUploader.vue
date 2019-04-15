@@ -1,13 +1,11 @@
 <template>
     <div class="uploadBox">
-        <h3>Add files</h3>
         <form role="form" enctype="multipart/form-data" @submit.prevent="onSubmit">
             <div class="uploadBoxMain" v-if="!itemsAdded">
                 <div class="form-group">
                     <div class="dropArea" @ondragover="onChange">
-                        Drop multiple files here.
                         <input type="file" id="items" name="items[]" required multiple @change="onChange">
-                        <p class="help-block">Space for your instructions</p>
+                        <p class="help-block">Click or drag and drop file.</p>
                     </div>
                 </div>
             </div>
@@ -22,7 +20,7 @@
                 </ol>
                 <p><strong>Total files:</strong> {{itemsAdded}}</p>
                 <p><strong>Total upload size:</strong> {{itemsTotalSize}}</p>
-                <button @click="removeItems">Remove files</button>
+                <v-btn depressed round color="" @click="removeItems">Remove files</v-btn>
                 <!-- Loader -->
                 <div class="loader" v-if="isLoaderVisible">
                     <div class="loaderImg"></div>
@@ -30,9 +28,13 @@
                 <!-- End Loader -->
             </div>
             <div>
-                <button type="submit" class="btn btn-primary btn-black btn-round" :disabled="itemsAdded < minItems || itemsAdded > maxItems">
-                    Upload</button>
-                <button type="button" class="btn btn-default btn-round" @click="removeItems">Cancel</button>
+                <v-btn
+                    depressed round
+                    color="black"
+                    class="white--text"
+                    type="submit"
+                    :disabled="itemsAdded < minItems || itemsAdded > maxItems"
+                >Upload<v-icon right dark>fa-upload</v-icon></v-btn>
             </div>
             <br>
             <div class="successMsg" v-if="successMsg !== ''">{{successMsg}}</div>
@@ -174,7 +176,6 @@ export default {
 <style>
 .uploadBox {
     position: relative;
-    background: #eee;
     padding: 0 1em 1em 1em;
     margin: 1em;
 }
@@ -185,6 +186,7 @@ export default {
 
 .uploadBox .uploadBoxMain {
     position: relative;
+    background: #eee;
     margin-bottom: 1em;
     margin-right: 1em;
 }
@@ -194,7 +196,7 @@ export default {
     position: relative;
     width: 100%;
     height: 300px;
-    border: 5px dashed #00ADCE;
+    border: 3px dashed #000000;
     text-align: center;
     font-size: 2em;
     padding-top: 80px;
