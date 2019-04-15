@@ -19,10 +19,10 @@ export default {
     },
     methods: {
         onRemove(item) {
-            console.log('onRemove', item);
+            this.$store.dispatch('removeFile', item.fileType.dataHash);
         },
         onAdd(file) {
-            this.$store.state.contract.insert(file);
+            this.$store.dispatch('insertFile', file);
         },
     }
 }

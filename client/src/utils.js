@@ -21,6 +21,23 @@ export const changeTreeItem = (tree, file, path, callback) => {
     return tree;
 };
 
+export const removeTreeItem = (tree, hash, path) => {
+    let item = tree;
+    const index = path.pop();
+
+    path.forEach((index) => {
+        if (item.children) {
+            item = item.children;
+        }
+        item = item[index];
+    });
+
+    if (item.children[index].fileType.dataHash === hash) {
+        item.children.splice(index, 1);
+    }
+    return tree;
+};
+
 export const fileToTree = (file) => {
     return {
         id: file.index,
