@@ -1,10 +1,12 @@
 <template>
     <div>
         <v-treeview
+            ref="fileTree"
             v-model="tree"
             :open="open"
             :items="items"
             activatable
+            open-all
             item-key="id"
             item-text="name"
             active-class="grey lighten-4 indigo--text"
@@ -78,6 +80,14 @@ export default {
         tree: [],
         parent: null,
     }),
+    watch: {
+        items() {
+            this.$refs.fileTree.updateAll(true);
+            setTimeout(() => {
+                this.$refs.fileTree.updateAll(true);
+            }, 2000);
+        },
+    },
     methods: {
         onRemove(item) {
             this.$emit('remove', item);
