@@ -94,7 +94,12 @@ export default {
             this.parent = item;
         },
         onOpen(item) {
-            let uri = filePointerToUrl(item.fileType.pointer);
+            let uri;
+            if (item.fileType.pointer.extension == 0) {
+                uri = `/#/${item.fileType.dataHash}`;
+            } else  {
+                uri = filePointerToUrl(item.fileType.pointer);
+            }
             window.open(uri, '_blank');
         },
         onFile(pointer) {
