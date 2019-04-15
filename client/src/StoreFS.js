@@ -79,7 +79,11 @@ const StoreFS = new Vuex.Store({
                 await dispatch('getFolderRecursive', dataHash)
             });
         },
-        async setFsData({dispatch, commit, state}) {
+        async setFsData({dispatch, commit, state}, rootHash) {
+            if (rootHash) {
+                await dispatch('getFolderRecursive', rootHash);
+                return;
+            }
             const count = await state.contract.count();
             for (let i = 0; i < count; i++) {
                 const hash = await state.contract.typeIndex(i);

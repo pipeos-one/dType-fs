@@ -13,14 +13,13 @@ export default {
         this.setData();
     },
     destroyed() {
-        this.$store.dispatch('removeWatchers');
+        // this.$store.dispatch('removeWatchers');
     },
     methods: {
         async setData() {
-            await this.$store.dispatch('setProvider');
-            await this.$store.dispatch('setContract');
-            await this.$store.dispatch('setFsData');
-            this.$store.dispatch('watchAll');
+            // await this.$store.dispatch('setProvider');
+            // await this.$store.dispatch('setContract');
+            // this.$store.dispatch('watchAll');
         },
     },
 }

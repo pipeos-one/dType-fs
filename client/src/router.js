@@ -9,7 +9,12 @@ export default new VueRouter({
             path: '/',
             name: 'main',
             component: () => import(/* webpackChunkName: "about" */ './views/Filebrowser.vue'),
-            // props: route => ({lang: route.params.lang, name: route.params.name}),
+        },
+        {
+            path: '/:hash',
+            name: 'main',
+            component: () => import(/* webpackChunkName: "about" */ './views/Filebrowser.vue'),
+            props: route => ({rootHash: route.params.hash}),
         },
     ],
 });

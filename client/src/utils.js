@@ -38,6 +38,17 @@ export const removeTreeItem = (tree, hash, path) => {
     return tree;
 };
 
+export const getTreeBranch = (tree, path) => {
+    let item = tree;
+    path.forEach((index) => {
+        if (item.children) {
+            item = item.children;
+        }
+        item = item[index];
+    });
+    return item;
+};
+
 export const fileToTree = (file) => {
     return {
         id: file.index,
