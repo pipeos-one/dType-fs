@@ -17,7 +17,7 @@
                         {{ open ? 'fa-folder-open' : 'fa-folder' }}
                     </v-icon>
                     <v-icon v-else>
-                        {{ files[item.file] || files.default }}
+                        {{ getIcon(item.file) }}
                     </v-icon>
                 </div>
             </template>
@@ -55,6 +55,7 @@
 
 <script>
 import {filePointerToUrl} from '../utils';
+import {EXTENSION_TO_ICON, UINT_TO_EXTENSION} from '../constants';
 import FileUpload from './FileUpload';
 
 export default {
@@ -66,19 +67,6 @@ export default {
         dialogAdd: false,
         onAction: false,
         open: ['public'],
-        files: {
-            0: 'fa-folder',
-            1: 'fa-file-alt',
-            2: 'fa-file-alt',
-            default: 'fa-star',
-            html: 'fa-html5',
-            js: 'fa-node-js',
-            json: 'fa-json',
-            md: 'fa-markdown',
-            pdf: 'fa-file-pdf',
-            png: 'fa-image',
-            txt: 'fa-file-alt',
-        },
         tree: [],
         parent: null,
     }),
@@ -94,6 +82,9 @@ export default {
         }
     },
     methods: {
+        getIcon(extension) {
+            return EXTENSION_TO_ICON[UINT_TO_EXTENSION[extension]] || EXTENSION_TO_ICON.default;
+        },
         onRemove(item) {
             this.$emit('remove', item);
         },

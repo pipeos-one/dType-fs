@@ -33,3 +33,17 @@ export const DEFAULT_POINTER = {
     ipfs: {protocol: 0, filehash: EMPTY_BYTES32},
     uri: {uri: ''},
 };
+
+export const EXTENSION_TO_ICON = {
+    default: 'fa-star',
+    dir: 'fa-folder',
+    md: 'fa-file-alt',
+    txt: 'fa-file-alt',
+    html: 'fa-html5',
+    js: 'fa-node-js',
+    json: 'fa-json',
+    // md: 'fa-markdown',
+    pdf: 'fa-file-pdf',
+    png: 'fa-image',
+    txt: 'fa-file-alt',
+};
