@@ -1,6 +1,6 @@
 <template>
     <div class="uploadBox">
-        <form role="form" enctype="multipart/form-data" @submit.prevent="onSubmit">
+        <form role="form" @submit.prevent="onSubmit">
             <div class="uploadBoxMain" v-if="!itemsAdded">
                 <div class="form-group">
                     <div class="dropArea" @ondragover="onChange">
@@ -72,10 +72,6 @@ export default {
             type: String,
             default: 'post'
         },
-        postMeta: {
-            type: [String, Array, Object],
-            default: ''
-        },
         successMessagePath: {
             type: String,
             required: true
@@ -116,7 +112,6 @@ export default {
         onChange(e) {
             this.successMsg = '';
             this.errorMsg = '';
-            this.formData = new FormData();
             let files = e.target.files || e.dataTransfer.files;
             this.itemsAdded = files.length;
             let fileSizes = 0;
@@ -126,7 +121,6 @@ export default {
                     this.itemsNames[x] = files[x].name;
                     this.itemsSizes[x] = this.bytesToSize(files[x].size);
                     fileSizes += files[x].size;
-                    this.formData.append('items[]', this.items);
                 }
             }
             this.itemsTotalSize = this.bytesToSize(fileSizes);
@@ -144,13 +138,8 @@ export default {
         onSubmit() {
             this.isLoaderVisible = true;
 
-            if ((typeof this.postMeta === 'string' && this.postMeta !== '') ||
-                (typeof this.postMeta === 'object' && Object.keys(this.postMeta).length > 0)) {
-                this.formData.append('postMeta', this.postMeta);
-            }
-
             if (this.method === 'put' || this.method === 'post' ) {
-                axios({method: this.method, url: this.postURL, data: this.formData})
+                axios({method: this.method, url: this.postURL, data: this.items})
                     .then((response) => {
                         this.isLoaderVisible = false;
                         // Show success message

@@ -20,6 +20,8 @@ export const EXTENSION_TO_UINT = {
     md: 1,
     txt: 2,
     sol: 3,
+    png: 4,
+    svg: 5,
 };
 
 export const UINT_TO_EXTENSION = Object.keys(EXTENSION_TO_UINT);
