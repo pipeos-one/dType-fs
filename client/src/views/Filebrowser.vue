@@ -42,7 +42,7 @@ export default {
     methods: {
         async setData() {
             await this.$store.dispatch('setProvider');
-            await this.$store.dispatch('setContract');
+            await this.$store.dispatch('setContracts');
             await this.$store.dispatch('setFsData', this.rootHash);
             this.$store.dispatch('watchAll');
             this.setRootDescription();

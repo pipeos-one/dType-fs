@@ -10,7 +10,9 @@ const StoreFS = new Vuex.Store({
     state: {
         provider: null,
         wallet: null,
-        contract: null,
+        fscontract: null,
+        acontract: null,
+        percontract: null,
         fsTree: [],
         added: {},
         dTypeFS,
@@ -22,8 +24,8 @@ const StoreFS = new Vuex.Store({
         setWallet(state, wallet) {
             state.wallet = wallet;
         },
-        setContract(state, contract) {
-            state.contract = contract;
+        setContract(state, {contract, type}) {
+            state[type] = contract;
         },
         addFile(state, file) {
             let indexKid;
@@ -54,20 +56,39 @@ const StoreFS = new Vuex.Store({
                 commit('setWallet', wallet);
             });
         },
-        setContract({commit, state}) {
-            const contractAddress = state.dTypeFS.contract.networks[
+        async setContracts({commit, state}) {
+            const fsAddress = state.dTypeFS.fsmeta.networks[
                 String(state.provider.network.chainId)
             ].address;
-            return getContract(
-                contractAddress,
-                state.dTypeFS.contract.abi,
+            let fscontract = await getContract(
+                fsAddress,
+                state.dTypeFS.fsmeta.abi,
                 state.wallet,
-            ).then((contract) => {
-                commit('setContract', contract);
-            });
+            );
+            commit('setContract', {contract: fscontract, type: 'fscontract'});
+
+            const actAddress = state.dTypeFS.actmeta.networks[
+                String(state.provider.network.chainId)
+            ].address;
+            let acontract = await getContract(
+                actAddress,
+                state.dTypeFS.actmeta.abi,
+                state.wallet,
+            );
+            commit('setContract', {contract: acontract, type: 'acontract'});
+
+            const perAddress = state.dTypeFS.permeta.networks[
+                String(state.provider.network.chainId)
+            ].address;
+            let percontract = await getContract(
+                perAddress,
+                state.dTypeFS.permeta.abi,
+                state.wallet,
+            );
+            commit('setContract', {contract: percontract, type: 'percontract'});
         },
         async getFile({state, commit}, hash) {
-            let struct = await state.contract.getByHash(hash);
+            let struct = await state.fscontract.getByHash(hash);
             struct.dataHash = hash;
             return normalizeEthersObject(struct);
         },
@@ -84,21 +105,21 @@ const StoreFS = new Vuex.Store({
                 await dispatch('getFolderRecursive', rootHash);
                 return;
             }
-            const count = await state.contract.count();
+            const count = await state.fscontract.count();
             for (let i = 0; i < count; i++) {
-                const hash = await state.contract.typeIndex(i);
+                const hash = await state.fscontract.typeIndex(i);
                 await dispatch('getFolderRecursive', hash);
             }
         },
         insertFile({state}, file) {
             console.log('insert file', JSON.stringify(file));
-            return state.contract.insert(file)
+            return state.fscontract.insert(file)
                 .then(tx => tx.wait(2))
                 .then(console.log);
         },
         removeFile({state}, dataHash) {
             console.log('remove file', dataHash);
-            return state.contract.remove(dataHash)
+            return state.fscontract.remove(dataHash)
                 .then(tx => tx.wait(2))
                 .then(console.log);
         },
@@ -110,24 +131,24 @@ const StoreFS = new Vuex.Store({
             });
         },
         removeWatchers({state}) {
-            return state.contract.removeAllListeners('LogNew')
+            return state.fscontract.removeAllListeners('LogNew')
                 .removeAllListeners('LogUpdate')
                 .removeAllListeners('LogRemove');
         },
         watchInsert({dispatch, state}) {
-            state.contract.on('LogNew', (dataHash, index) => {
+            state.fscontract.on('LogNew', (dataHash, index) => {
                 console.log('LogNew', dataHash, index);
                 dispatch('getFolderRecursive', dataHash);
             });
         },
         watchUpdate({state}) {
-            state.contract.on('LogUpdate', (dataHash, index) => {
+            state.fscontract.on('LogUpdate', (dataHash, index) => {
                 console.log('LogUpdate', dataHash, index, index.toNumber());
                 // TODO
             });
         },
         watchRemove({commit, state}) {
-            state.contract.on('LogRemove', (dataHash) => {
+            state.fscontract.on('LogRemove', (dataHash) => {
                 console.log('LogRemove', dataHash);
                 commit('removeFile', dataHash);
             });
