@@ -13,10 +13,11 @@
         >
             <template v-slot:prepend="{ item, open }">
                 <div class="iconW">
-                    <v-icon v-if="item.file == 0">
+                    <v-icon v-if="item.file == 0" :color="getPermissionColor(item.fileType)">
                         {{ open ? 'fa-folder-open' : 'fa-folder' }}
                     </v-icon>
-                    <v-icon v-else>
+
+                    <v-icon v-else :color="getPermissionColor(item.fileType)">
                         {{ getIcon(item.file) }}
                     </v-icon>
                 </div>
@@ -110,6 +111,16 @@ export default {
                 filesPerFolder: [],
             });
         },
+        getPermissionColor(item) {
+            if (
+                !item.permissions.insert.allowed &&
+                !item.permissions.update.allowed &&
+                !item.permissions.remove.allowed
+            ) {
+                return '#cccccc';
+            }
+            return '#737373';
+        }
     }
 }
 </script>

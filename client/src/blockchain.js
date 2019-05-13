@@ -52,3 +52,67 @@ export const normalizeEthersObject = (item) => {
         });
     return obj;
 };
+
+export const encodedParams = (contract, functionName, params) => {
+    return ethers.utils.defaultAbiCoder.encode(
+        contract.interface.functions[functionName].inputs,
+        params,
+    );
+};
+
+export const getBasePermissions = async(fscontract, percontract) => {
+    const permissions = {};
+    const funcNames = ['insert', 'update', 'remove'];
+
+    for (const funcName of funcNames) {
+        permissions[funcName] = await percontract.get({
+            contractAddress: fscontract.address,
+            functionSig: fscontract.interface.functions[funcName].sighash,
+            transitionHash: ethers.constants.HashZero,
+            dataHash: ethers.constants.HashZero,
+        });
+    }
+    return permissions;
+};
+
+export const calcPermission = (address, permission) => {
+    return permission.anyone || permission.allowed === address;
+};
+
+export const getPermissions = async(address, basePermissions, fscontract, percontract, dataHash) => {
+    let permissions = {};
+
+    for (const funcName of Object.keys(basePermissions)) {
+        permissions[funcName] = {};
+
+        permissions[funcName].allowed = calcPermission(address, basePermissions[funcName]);
+
+        if (!permissions[funcName].allowed) {
+            // Get record permissions
+            let perm = await percontract.get({
+                contractAddress: fscontract.address,
+                functionSig: fscontract.interface.functions[funcName].sighash,
+                transitionHash: ethers.constants.HashZero,
+                dataHash,
+            });
+            permissions[funcName].allowed = calcPermission(address, perm);
+
+            // Get specific transition permissions
+            permissions[funcName].transitions = {};
+            if (basePermissions[funcName].permissionProcess) {
+                const transitions = basePermissions[funcName].permissionProcess.allowedTransitions;
+
+                for (const transitionHash of transitions) {
+                    let perm = await percontract.get({
+                        contractAddress: fscontract.address,
+                        functionSig: fscontract.interface.functions[funcName].sighash,
+                        transitionHash,
+                        dataHash,
+                    });
+                    permissions[funcName].transitions[transitionHash] = calcPermission(address, perm);
+                }
+            }
+        }
+    }
+    return permissions;
+};

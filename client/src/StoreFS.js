@@ -1,8 +1,21 @@
+import {ethers} from 'ethers';
 import Vue from 'vue';
 import Vuex from 'vuex';
 import dTypeFS from './namespace';
-import {getProvider, getContract,  normalizeEthersObject} from './blockchain';
-import {changeTreeItem, removeTreeItem, fileToTree} from './utils.js';
+import {
+    getProvider,
+    getContract,
+    normalizeEthersObject,
+    encodedParams,
+    calcPermission,
+    getBasePermissions,
+    getPermissions,
+} from './blockchain';
+import {
+    changeTreeItem,
+    removeTreeItem,
+    fileToTree,
+} from './utils.js';
 
 Vue.use(Vuex);
 
@@ -16,6 +29,7 @@ const StoreFS = new Vuex.Store({
         fsTree: [],
         added: {},
         dTypeFS,
+        basePermissions: {},
     },
     mutations: {
         setProvider(state, provider) {
@@ -26,6 +40,9 @@ const StoreFS = new Vuex.Store({
         },
         setContract(state, {contract, type}) {
             state[type] = contract;
+        },
+        setBasePermissions(state, permissions) {
+            state.basePermissions = permissions;
         },
         addFile(state, file) {
             let indexKid;
@@ -87,15 +104,22 @@ const StoreFS = new Vuex.Store({
             );
             commit('setContract', {contract: percontract, type: 'percontract'});
         },
-        async getFile({state, commit}, hash) {
+        async getFile({state}, hash) {
             let struct = await state.fscontract.getByHash(hash);
             struct.dataHash = hash;
+            struct.permissions = await getPermissions(
+                state.wallet.address,
+                state.basePermissions,
+                state.fscontract,
+                state.percontract,
+                struct.dataHash,
+            );
+
             return normalizeEthersObject(struct);
         },
         async getFolderRecursive({dispatch, commit}, hash) {
             const file = await dispatch('getFile', hash);
             commit('addFile', file);
-
             file.filesPerFolder.forEach(async (dataHash) => {
                 await dispatch('getFolderRecursive', dataHash)
             });
@@ -111,17 +135,35 @@ const StoreFS = new Vuex.Store({
                 await dispatch('getFolderRecursive', hash);
             }
         },
+        async setBasePermissions({commit, state}) {
+            const permissions = await getBasePermissions(state.fscontract, state.percontract);
+            commit('setBasePermissions', permissions);
+        },
         insertFile({state}, file) {
             console.log('insert file', JSON.stringify(file));
-            return state.fscontract.insert(file)
-                .then(tx => tx.wait(2))
-                .then(console.log);
+
+            const encoded = encodedParams(state.fscontract, 'insert', [file]);
+            console.log(file);
+            console.log(
+                '--------',
+                state.fscontract.address,
+                state.fscontract.interface.functions.insert.sighash,
+                encoded,
+            );
+            return state.acontract.run(
+                state.fscontract.address,
+                state.fscontract.interface.functions.insert.sighash,
+                encoded,
+            ).then(tx => tx.wait(2)).then(console.log);
         },
         removeFile({state}, dataHash) {
             console.log('remove file', dataHash);
-            return state.fscontract.remove(dataHash)
-                .then(tx => tx.wait(2))
-                .then(console.log);
+            const encoded = encodedParams(state.fscontract, 'remove', [dataHash]);
+            return state.acontract.run(
+                state.fscontract.address,
+                state.fscontract.interface.functions.remove.sighash,
+                encoded,
+            ).then(tx => tx.wait(2)).then(console.log);
         },
         watchAll({dispatch}) {
             return dispatch('watchInsert').then(() => {
