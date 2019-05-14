@@ -13,21 +13,25 @@
         >
             <template v-slot:prepend="{ item, open }">
                 <div class="iconW">
-                    <v-icon v-if="item.file == 0" :color="getPermissionColor(item.fileType)">
+                    <v-icon v-if="item.file == 0" :color="getPermissionColor(dpermission(item.fileType))">
                         {{ open ? 'fa-folder-open' : 'fa-folder' }}
                     </v-icon>
 
-                    <v-icon v-else :color="getPermissionColor(item.fileType)">
+                    <v-icon v-else :color="getPermissionColor(dpermission(item.fileType))">
                         {{ getIcon(item.file) }}
                     </v-icon>
                 </div>
             </template>
             <template v-slot:append="{ item, active }">
                 <template v-if="active || onAction === item.id">
-                    <v-btn flat icon @click="onRemove(item)">
+                    <v-btn
+                        flat icon
+                        @click="onRemove(item)"
+                        :disabled="rpermission(item.fileType) ? false : 'disabled'"
+                    >
                         <v-icon>fa-trash</v-icon>
                     </v-btn>
-                    <v-btn flat icon v-if="item.file == 0" @click="onAdd(item)">
+                    <v-btn flat icon v-if="item.file == 0" @click="onAdd(item)" :disabled="ipermission(item.fileType) ? false : 'disabled'">
                         <v-icon>fa-plus</v-icon>
                     </v-btn>
 
@@ -111,16 +115,22 @@ export default {
                 filesPerFolder: [],
             });
         },
-        getPermissionColor(item) {
-            if (
-                !item.permissions.insert.allowed &&
-                !item.permissions.update.allowed &&
-                !item.permissions.remove.allowed
-            ) {
-                return '#cccccc';
-            }
-            return '#737373';
-        }
+        dpermission(item) {
+            return (
+                item.permissions.insert.allowed
+                || item.permissions.update.allowed
+                || item.permissions.remove.allowed
+            );
+        },
+        ipermission(item) {
+            return item.permissions.insert.allowed;
+        },
+        rpermission(item) {
+            return item.permissions.remove.allowed;
+        },
+        getPermissionColor(status) {
+            return status ? '#737373' : '#cccccc';
+        },
     }
 }
 </script>
