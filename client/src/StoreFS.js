@@ -124,6 +124,18 @@ const StoreFS = new Vuex.Store({
                 await dispatch('getFolderRecursive', dataHash)
             });
         },
+        async getFileReview({state, commit}, {hash, proponent}) {
+            const struct = await state.fscontract.inreview(hash, proponent);
+            struct.dataHash = hash;
+            struct.inreview = true;
+            struct.permissions = {
+                insert: {allowed: false},
+                update: {allowed: false},
+                remove: {allowed: false},
+            };
+
+            commit('addFile', normalizeEthersObject(struct));
+        },
         async setFsData({dispatch, commit, state}, rootHash) {
             if (rootHash) {
                 await dispatch('getFolderRecursive', rootHash);
@@ -134,6 +146,7 @@ const StoreFS = new Vuex.Store({
                 const hash = await state.fscontract.typeIndex(i);
                 await dispatch('getFolderRecursive', hash);
             }
+            dispatch('getPastEvents', 'LogNewReview');
         },
         async setBasePermissions({commit, state}) {
             const permissions = await getBasePermissions(state.fscontract, state.percontract);
@@ -143,13 +156,7 @@ const StoreFS = new Vuex.Store({
             console.log('insert file', JSON.stringify(file));
 
             const encoded = encodedParams(state.fscontract, 'insert', [file]);
-            console.log(file);
-            console.log(
-                '--------',
-                state.fscontract.address,
-                state.fscontract.interface.functions.insert.sighash,
-                encoded,
-            );
+
             return state.acontract.run(
                 state.fscontract.address,
                 state.fscontract.interface.functions.insert.sighash,
@@ -170,6 +177,12 @@ const StoreFS = new Vuex.Store({
                 dispatch('watchUpdate');
             }).then(() => {
                 dispatch('watchRemove');
+            });
+        },
+        getPastEvents({state, dispatch}, eventName) {
+            state.fscontract.on(eventName, (hash, proponent) => {
+                console.log(`getPastEvents ${eventName}: ${hash}, ${proponent}`);
+                dispatch('getFileReview', {hash, proponent});
             });
         },
         removeWatchers({state}) {

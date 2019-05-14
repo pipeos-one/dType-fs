@@ -116,6 +116,9 @@ export default {
             });
         },
         dpermission(item) {
+            if (item.inreview === true) {
+                return 3;
+            }
             return (
                 item.permissions.insert.allowed
                 || item.permissions.update.allowed
@@ -129,7 +132,7 @@ export default {
             return item.permissions.remove.allowed;
         },
         getPermissionColor(status) {
-            return status ? '#737373' : '#cccccc';
+            return status === 3 ? '#A0C181' : (status ? '#737373' : '#cccccc');
         },
     }
 }
