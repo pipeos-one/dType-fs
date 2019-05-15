@@ -27,11 +27,16 @@
                     <v-btn
                         flat icon
                         @click="onRemove(item)"
-                        :disabled="rpermission(item.fileType) ? false : 'disabled'"
+                        :color="getPermissionColor(rpermission(item.fileType))"
                     >
                         <v-icon>fa-trash</v-icon>
                     </v-btn>
-                    <v-btn flat icon v-if="item.file == 0" @click="onAdd(item)" :disabled="ipermission(item.fileType) ? false : 'disabled'">
+                    <v-btn
+                        v-if="item.file == 0"
+                        flat icon
+                        @click="onAdd(item)"
+                        :color="getPermissionColor(ipermission(item.fileType))"
+                    >
                         <v-icon>fa-plus</v-icon>
                     </v-btn>
 
