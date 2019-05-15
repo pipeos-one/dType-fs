@@ -108,7 +108,7 @@ const StoreFS = new Vuex.Store({
             let struct = await state.fscontract.getByHash(hash);
             struct.dataHash = hash;
             struct.permissions = await getPermissions(
-                state.wallet.address,
+                state.wallet._address,
                 state.basePermissions,
                 state.fscontract,
                 state.percontract,
