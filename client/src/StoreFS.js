@@ -186,23 +186,36 @@ const StoreFS = new Vuex.Store({
                 encoded,
             ).then(tx => tx.wait(2)).then(console.log);
         },
+        getPastEvents({state, dispatch}, eventName) {
+            const topic = state.fscontract.interface.events[eventName].topic;
+            const filter = {
+                address: state.fscontract.address,
+                fromBlock: 0,
+                toBlock: 'latest',
+                topics: [ topic ],
+            };
+
+            state.provider.getLogs(filter).then((pastLogs) => {
+                pastLogs.forEach((log) => {
+                    const event = state.fscontract.interface.parseLog(log);
+                    dispatch('getFileReview', {hash: event.values.hash, proponent: event.values.proponent});
+                });
+            });
+        },
         watchAll({dispatch}) {
             return dispatch('watchInsert').then(() => {
                 dispatch('watchUpdate');
             }).then(() => {
                 dispatch('watchRemove');
-            });
-        },
-        getPastEvents({state, dispatch}, eventName) {
-            state.fscontract.on(eventName, (hash, proponent) => {
-                console.log(`getPastEvents ${eventName}: ${hash}, ${proponent}`);
-                dispatch('getFileReview', {hash, proponent});
+            }).then(() => {
+                dispatch('watchInsertReview');
             });
         },
         removeWatchers({state}) {
             return state.fscontract.removeAllListeners('LogNew')
                 .removeAllListeners('LogUpdate')
-                .removeAllListeners('LogRemove');
+                .removeAllListeners('LogRemove')
+                .removeAllListeners('LogInsertReview');
         },
         watchInsert({dispatch, state}) {
             state.fscontract.on('LogNew', (dataHash, index) => {
@@ -220,6 +233,12 @@ const StoreFS = new Vuex.Store({
             state.fscontract.on('LogRemove', (dataHash) => {
                 console.log('LogRemove', dataHash);
                 commit('removeFile', dataHash);
+            });
+        },
+        watchInsertReview({dispatch, state}) {
+            state.fscontract.on('LogNewReview', (hash, proponent) => {
+                console.log(`LogNewReview: ${hash}, ${proponent}`);
+                dispatch('getFileReview', {hash, proponent});
             });
         },
     },
