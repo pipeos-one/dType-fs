@@ -71,7 +71,7 @@
             </v-card>
         </v-dialog>
         <v-dialog v-model="dialogVote" width="600">
-            <Vote v-on:vote="voteAction"/>
+            <Vote :votingResource="inVote.vote" v-on:vote="voteAction"/>
         </v-dialog>
     </div>
 </template>

@@ -26,6 +26,7 @@ const StoreFS = new Vuex.Store({
         fscontract: null,
         acontract: null,
         percontract: null,
+        votecontract: null,
         fsTree: [],
         added: {},
         dTypeFS,
@@ -77,7 +78,7 @@ const StoreFS = new Vuex.Store({
             const fsAddress = state.dTypeFS.fsmeta.networks[
                 String(state.provider.network.chainId)
             ].address;
-            let fscontract = await getContract(
+            const fscontract = await getContract(
                 fsAddress,
                 state.dTypeFS.fsmeta.abi,
                 state.wallet,
@@ -87,7 +88,7 @@ const StoreFS = new Vuex.Store({
             const actAddress = state.dTypeFS.actmeta.networks[
                 String(state.provider.network.chainId)
             ].address;
-            let acontract = await getContract(
+            const acontract = await getContract(
                 actAddress,
                 state.dTypeFS.actmeta.abi,
                 state.wallet,
@@ -97,12 +98,21 @@ const StoreFS = new Vuex.Store({
             const perAddress = state.dTypeFS.permeta.networks[
                 String(state.provider.network.chainId)
             ].address;
-            let percontract = await getContract(
+            const percontract = await getContract(
                 perAddress,
                 state.dTypeFS.permeta.abi,
                 state.wallet,
             );
             commit('setContract', {contract: percontract, type: 'percontract'});
+            const voteAddress = state.dTypeFS.votecontract.networks[
+                String(state.provider.network.chainId)
+            ].address;
+            const votecontract = await getContract(
+                voteAddress,
+                state.dTypeFS.votecontract.abi,
+                state.wallet,
+            );
+            commit('setContract', {contract: votecontract, type: 'votecontract'});
         },
         async getFile({state}, hash) {
             let struct = await state.fscontract.getByHash(hash);
@@ -133,7 +143,11 @@ const StoreFS = new Vuex.Store({
                 update: {allowed: false},
                 remove: {allowed: false},
             };
-
+            struct.vote = await state.votecontract.get({
+                contractAddress: state.fscontract.address,
+                dataHash: struct.dataHash,
+                proponent: state.wallet._address,
+            });
             commit('addFile', normalizeEthersObject(struct));
         },
         async setFsData({dispatch, commit, state}, rootHash) {
