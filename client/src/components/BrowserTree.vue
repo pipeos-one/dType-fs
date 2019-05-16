@@ -31,6 +31,7 @@
                     >
                         <v-icon>fa-trash</v-icon>
                     </v-btn>
+
                     <v-btn
                         v-if="item.file == 0"
                         flat icon
@@ -42,6 +43,15 @@
 
                     <v-btn flat icon @click="onOpen(item)">
                         <v-icon>fa-external-link-alt</v-icon>
+                    </v-btn>
+
+                    <v-btn
+                        v-if="dpermission(item.fileType) === 3"
+                        flat icon
+                        @click="onVote(item)"
+                        color="#A6BF88"
+                    >
+                        <v-icon>fa-poll</v-icon>
                     </v-btn>
                 </template>
 
@@ -60,10 +70,14 @@
                 />
             </v-card>
         </v-dialog>
+        <v-dialog v-model="dialogVote" width="600">
+            <Vote v-on:vote="voteAction"/>
+        </v-dialog>
     </div>
 </template>
 
 <script>
+import {Vote} from '../gov';
 import {filePointerToUrl} from '../utils';
 import {EXTENSION_TO_ICON, UINT_TO_EXTENSION} from '../constants';
 import FileUpload from './FileUpload';
@@ -72,13 +86,16 @@ export default {
     props: ['items'],
     components: {
         FileUpload,
+        Vote
     },
     data: () => ({
         dialogAdd: false,
+        dialogVote: false,
         onAction: false,
         open: ['public'],
         tree: [],
         parent: null,
+        inVote: null,
     }),
     watch: {
         items() {
@@ -89,7 +106,7 @@ export default {
         },
         dialogAdd() {
             this.onAction = false;
-        }
+        },
     },
     methods: {
         getIcon(extension) {
@@ -118,6 +135,16 @@ export default {
                 pointer,
                 parentKey: this.parent.fileType.dataHash,
                 filesPerFolder: [],
+            });
+        },
+        onVote(item) {
+            this.inVote = item.fileType;
+            this.dialogVote = !this.dialogVote;
+        },
+        voteAction(value) {
+            this.$emit('vote', {
+                value,
+                item: this.inVote,
             });
         },
         dpermission(item) {

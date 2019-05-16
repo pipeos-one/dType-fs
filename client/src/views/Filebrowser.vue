@@ -5,6 +5,7 @@
             :items='fsTree'
             v-on:remove="onRemove"
             v-on:add="onAdd"
+            v-on:vote="onVote"
         />
         <div v-html="description2"></div>
     </div>
@@ -43,6 +44,7 @@ export default {
         async setData() {
             await this.$store.dispatch('setProvider');
             await this.$store.dispatch('setContracts');
+            await this.$store.dispatch('setBasePermissions');
             await this.$store.dispatch('setFsData', this.rootHash);
             this.$store.dispatch('watchAll');
             this.setRootDescription();
@@ -62,6 +64,9 @@ export default {
         onAdd(file) {
             this.$store.dispatch('insertFile', file);
         },
+        onVote(item) {
+            this.$store.dispatch('vote', item);
+        }
     }
 }
 </script>
