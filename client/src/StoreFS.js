@@ -69,7 +69,7 @@ const StoreFS = new Vuex.Store({
     },
     actions: {
         setProvider({commit, state}) {
-            return getProvider(state.dTypeFS.from.privateKey).then(({provider, wallet}) => {
+            return getProvider().then(({provider, wallet}) => {
                 commit('setProvider', provider);
                 commit('setWallet', wallet);
             });
@@ -145,8 +145,8 @@ const StoreFS = new Vuex.Store({
             };
             const voteHash = await state.votecontract.getHash({
                 contractAddress: state.fscontract.address,
-                dataHash: struct.dataHash,
-                proponent: state.wallet._address,
+                dataHash: hash,
+                proponent: proponent,
             });
             struct.vote = await state.votecontract.getByHash(voteHash);
             struct.vote.votingResourceHash = voteHash;
@@ -196,7 +196,7 @@ const StoreFS = new Vuex.Store({
 
             await state.acontract.vote(obj.item.vote.votingResourceHash, data);
             commit('removeFile', obj.item.dataHash);
-            await dispatch('getFileReview', {hash: obj.item.dataHash, proponent: state.wallet._address});
+            await dispatch('getFileReview', {hash: obj.item.dataHash, proponent: obj.item.vote.proponent});
         },
         getPastEvents({state, dispatch}, eventName) {
             const topic = state.fscontract.interface.events[eventName].topic;

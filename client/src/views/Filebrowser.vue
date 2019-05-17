@@ -31,6 +31,12 @@ export default {
     }),
     mounted() {
         this.setData();
+        web3.currentProvider.publicConfigStore.on('update', async () => {
+            if (web3.eth.accounts[0].toLowerCase() !== this.$store.state.wallet._address.toLowerCase()) {
+                console.log('reload', web3.eth.accounts, this.$store.state.wallet._address);
+                window.location.reload();
+            }
+        });
     },
     destroyed() {
         this.$store.dispatch('removeWatchers');

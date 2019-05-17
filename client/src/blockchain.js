@@ -4,10 +4,10 @@ export const waitAsync = async function(delay) {
     return new Promise(resolve => setTimeout(resolve, delay));
 };
 
-export const getProvider = async function(privateKey) {
+export const getProvider = async function() {
     // Metamask
     let provider = new ethers.providers.Web3Provider(window.web3.currentProvider);
-    let wallet = new ethers.Wallet(privateKey, provider);
+    let wallet = provider.getSigner();
 
     await waitAsync(1000);
 
@@ -15,9 +15,10 @@ export const getProvider = async function(privateKey) {
     if (provider.network.chainId === 5777) {
         const url = 'http://192.168.1.140:8545';
         provider = new ethers.providers.JsonRpcProvider(url);
-        wallet = provider.getSigner(0);
+        // wallet = provider.getSigner(0);
         await waitAsync(1000);
     }
+
     return {provider, wallet};
 };
 
