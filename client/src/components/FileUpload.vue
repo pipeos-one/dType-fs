@@ -5,11 +5,11 @@
                 <v-select
                     v-model="storageOption"
                     :items="['swarm', 'ipfs', 'uri']"
-                    label="Storage option"
+                    label="storage option"
                 ></v-select>
             </v-flex>
             <v-flex xs6 offset-xs1>
-                <v-text-field v-if='postURL' v-model='postURL' label='gateway url'></v-text-field>
+                <v-text-field v-if='postURL' v-model='postURL' label='url'></v-text-field>
             </v-flex>
         </v-layout>
         <v-layout row>
