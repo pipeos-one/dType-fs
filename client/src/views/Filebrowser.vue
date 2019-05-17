@@ -1,14 +1,18 @@
 <template>
-    <div>
-        <div v-html="description1"></div>
+    <v-container fluid>
+        <v-btn fixed right top flat icon @click="showDescr = !showDescr">
+            <v-icon v-if="showDescr">fa-eye-slash</v-icon>
+            <v-icon v-else>fa-eye</v-icon>
+        </v-btn>
+        <div v-if="showDescr" v-html="description1"></div>
         <BrowserTree
             :items='fsTree'
             v-on:remove="onRemove"
             v-on:add="onAdd"
             v-on:vote="onVote"
         />
-        <div v-html="description2"></div>
-    </div>
+        <div v-if="showDescr" v-html="description2"></div>
+    </v-container>
 </template>
 
 <script>
@@ -23,6 +27,7 @@ export default {
     data: () => ({
         description1: '',
         description2: '',
+        showDescr: false,
     }),
     mounted() {
         this.setData();
