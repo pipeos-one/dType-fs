@@ -1,6 +1,7 @@
 <template>
     <v-card>
         <v-container fluid>
+            <h3 class="headline mb-0">{{name}}</h3>
             <p>Votes yes: {{votingResource.scoreyes}}</p>
             <p>Votes no: {{votingResource.scoreno}}</p>
             <v-radio-group v-model="radios" :mandatory="false">
@@ -16,7 +17,7 @@
 
 <script>
 export default {
-    props: ['votingResource'],
+    props: ['votingResource', 'name'],
     data: () => ({
         radios: true,
     }),

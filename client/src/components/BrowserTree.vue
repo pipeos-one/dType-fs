@@ -54,7 +54,11 @@
                         <v-icon>fa-poll</v-icon>
                     </v-btn>
                     <v-dialog v-model="dialogVote" v-if="item.fileType.vote" width="600">
-                        <Vote :votingResource="item.fileType.vote" v-on:vote="voteAction"/>
+                        <Vote
+                            :votingResource="item.fileType.vote"
+                            :name="item.name"
+                            v-on:vote="voteAction"
+                        />
                     </v-dialog>
                 </template>
 
