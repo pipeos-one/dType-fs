@@ -45,6 +45,11 @@ export default {
         rootHash() {
             this.setData();
         },
+        showDescr() {
+            if (this.showDescr == true && !this.description1) {
+                this.setRootDescription();
+            }
+        }
     },
     computed: {
         fsTree() {
@@ -58,7 +63,6 @@ export default {
             await this.$store.dispatch('setBasePermissions');
             await this.$store.dispatch('setFsData', this.rootHash);
             this.$store.dispatch('watchAll');
-            this.setRootDescription();
         },
         async setRootDescription() {
             const url = filePointerToUrl(this.$store.state.fsTree[0].fileType.pointer);
