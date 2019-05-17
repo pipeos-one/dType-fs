@@ -53,6 +53,9 @@
                     >
                         <v-icon>fa-poll</v-icon>
                     </v-btn>
+                    <v-dialog v-model="dialogVote" v-if="item.fileType.vote" width="600">
+                        <Vote :votingResource="item.fileType.vote" v-on:vote="voteAction"/>
+                    </v-dialog>
                 </template>
 
                 <!-- <v-btn flat icon v-if="active">
@@ -69,9 +72,6 @@
                     @upload-success="onFile"
                 />
             </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialogVote" width="600">
-            <Vote :votingResource="inVote.vote" v-on:vote="voteAction"/>
         </v-dialog>
     </div>
 </template>
@@ -107,6 +107,11 @@ export default {
         dialogAdd() {
             this.onAction = false;
         },
+        dialogVote() {
+            if (this.dialogVote === false) {
+                this.onAction = false;
+            }
+        }
     },
     methods: {
         getIcon(extension) {
@@ -138,13 +143,14 @@ export default {
             });
         },
         onVote(item) {
-            this.inVote = item.fileType;
+            this.inVote = item;
             this.dialogVote = !this.dialogVote;
+            this.onAction = item.id;
         },
         voteAction(value) {
             this.$emit('vote', {
                 value,
-                item: this.inVote,
+                item: this.inVote.fileType,
             });
         },
         dpermission(item) {

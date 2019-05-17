@@ -143,11 +143,13 @@ const StoreFS = new Vuex.Store({
                 update: {allowed: false},
                 remove: {allowed: false},
             };
-            struct.vote = await state.votecontract.get({
+            const voteHash = await state.votecontract.getHash({
                 contractAddress: state.fscontract.address,
                 dataHash: struct.dataHash,
                 proponent: state.wallet._address,
             });
+            struct.vote = await state.votecontract.getByHash(voteHash);
+            struct.vote.votingResourceHash = voteHash;
             commit('addFile', normalizeEthersObject(struct));
         },
         async setFsData({dispatch, commit, state}, rootHash) {
@@ -185,6 +187,16 @@ const StoreFS = new Vuex.Store({
                 state.fscontract.interface.functions.remove.sighash,
                 encoded,
             ).then(tx => tx.wait(2)).then(console.log);
+        },
+        async vote({state, commit, dispatch}, obj) {
+            const data = ethers.utils.defaultAbiCoder.encode(
+                ['bool', 'uint256', 'address'],
+                [obj.value, 0, state.wallet._address],
+            );
+
+            await state.acontract.vote(obj.item.vote.votingResourceHash, data);
+            commit('removeFile', obj.item.dataHash);
+            await dispatch('getFileReview', {hash: obj.item.dataHash, proponent: state.wallet._address});
         },
         getPastEvents({state, dispatch}, eventName) {
             const topic = state.fscontract.interface.events[eventName].topic;
