@@ -61,6 +61,33 @@ const StoreFS = new Vuex.Store({
             });
             state.added[file.dataHash] = state.added[file.parentKey].concat([indexKid]);
         },
+        updateFile(state, obj) {
+            const {oldfile, file} = obj;
+            if (!state.added[oldfile.dataHash]) return;
+            if (oldfile.dataHash !== file.dataHash) return;
+
+            const indexKid = state.added[oldfile.dataHash][state.added[oldfile.dataHash].length - 1];
+            file.index = oldfile.index;
+
+            // delete first
+            state.fsTree = removeTreeItem(state.fsTree, oldfile.dataHash, state.added[oldfile.dataHash]);
+
+            // Add it with same index
+
+            // Can happen if the inreview file was accepted
+            if (!state.added[file.parentKey]) {
+                delete state.added[oldfile.dataHash];
+                return;
+            }
+            state.fsTree = changeTreeItem(
+                state.fsTree,
+                file,
+                state.added[file.parentKey],
+                (parent) => {},
+                indexKid,
+            );
+            state.added[file.dataHash] = state.added[file.parentKey].concat([indexKid]);
+        },
         removeFile(state, dataHash) {
             if (!state.added[dataHash]) return;
             state.fsTree = removeTreeItem(state.fsTree, dataHash, state.added[dataHash]);
@@ -150,7 +177,7 @@ const StoreFS = new Vuex.Store({
             });
             struct.vote = await state.votecontract.getByHash(voteHash);
             struct.vote.votingResourceHash = voteHash;
-            commit('addFile', normalizeEthersObject(struct));
+            return normalizeEthersObject(struct);
         },
         async setFsData({dispatch, commit, state}, rootHash) {
             if (rootHash) {
@@ -195,10 +222,10 @@ const StoreFS = new Vuex.Store({
             );
 
             await state.acontract.vote(obj.item.vote.votingResourceHash, data);
-            commit('removeFile', obj.item.dataHash);
-            await dispatch('getFileReview', {hash: obj.item.dataHash, proponent: obj.item.vote.proponent});
+            const file = await dispatch('getFileReview', {hash: obj.item.dataHash, proponent: obj.item.vote.proponent});
+            commit('updateFile', {oldfile: obj.item, file});
         },
-        getPastEvents({state, dispatch}, eventName) {
+        getPastEvents({state, dispatch, commit}, eventName) {
             const topic = state.fscontract.interface.events[eventName].topic;
             const filter = {
                 address: state.fscontract.address,
@@ -210,7 +237,9 @@ const StoreFS = new Vuex.Store({
             state.provider.getLogs(filter).then((pastLogs) => {
                 pastLogs.forEach((log) => {
                     const event = state.fscontract.interface.parseLog(log);
-                    dispatch('getFileReview', {hash: event.values.hash, proponent: event.values.proponent});
+                    dispatch('getFileReview', {hash: event.values.hash, proponent: event.values.proponent}).then((file) => {
+                        commit('addFile', file);
+                    });
                 });
             });
         },
@@ -247,10 +276,12 @@ const StoreFS = new Vuex.Store({
                 commit('removeFile', dataHash);
             });
         },
-        watchInsertReview({dispatch, state}) {
+        watchInsertReview({dispatch, commit, state}) {
             state.fscontract.on('LogNewReview', (hash, proponent) => {
                 console.log(`LogNewReview: ${hash}, ${proponent}`);
-                dispatch('getFileReview', {hash, proponent});
+                dispatch('getFileReview', {hash, proponent}).then((file) => {
+                    commit('addFile', file);
+                });
             });
         },
     },

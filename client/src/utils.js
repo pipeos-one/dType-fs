@@ -7,7 +7,7 @@ import {
     UINT_TO_EXTENSION,
 } from './constants';
 
-export const changeTreeItem = (tree, file, path, callback) => {
+export const changeTreeItem = (tree, file, path, callback, givenIndex) => {
     let item = tree;
     path.forEach((index) => {
         if (item.children) {
@@ -15,8 +15,11 @@ export const changeTreeItem = (tree, file, path, callback) => {
         }
         item = item[index];
     });
-
-    item.children.push(fileToTree(file));
+    if (givenIndex) {
+        item.children.splice(givenIndex, 0, fileToTree(file));
+    } else {
+        item.children.push(fileToTree(file));
+    }
     callback(item);
     return tree;
 };
@@ -34,6 +37,8 @@ export const removeTreeItem = (tree, hash, path) => {
 
     if (item.children[index].fileType.dataHash === hash) {
         item.children.splice(index, 1);
+    } else {
+        console.error(`removeTreeItem failed for  ${hash}. Found ${item.children[index].fileType.dataHash}`);
     }
     return tree;
 };
