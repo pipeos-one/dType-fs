@@ -100,12 +100,21 @@ export default {
         tree: [],
         parent: null,
         inVote: null,
+        intervalStep:0,
+        intervalId: null,
     }),
+    destroyed() {
+        this.clearTreeInterval();
+    },
     watch: {
         items() {
             this.$refs.fileTree.updateAll(true);
-            setTimeout(() => {
+            this.intervalId = setInterval(() => {
                 this.$refs.fileTree.updateAll(true);
+                this.intervalStep ++;
+                if (this.intervalStep > 4) {
+                    this.clearTreeInterval();
+                }
             }, 2000);
         },
         dialogAdd() {
@@ -118,6 +127,12 @@ export default {
         }
     },
     methods: {
+        clearTreeInterval() {
+            if (!this.intervalId) return;
+            clearInterval(this.intervalId);
+            this.intervalStep = 0;
+            this.intervalId = null;
+        },
         getIcon(extension) {
             return EXTENSION_TO_ICON[UINT_TO_EXTENSION[extension]] || EXTENSION_TO_ICON.default;
         },
