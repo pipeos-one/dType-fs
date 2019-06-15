@@ -13,12 +13,14 @@
             </v-flex>
         </v-layout>
         <v-layout row>
-            <v-flex xs12>
+            <v-flex xs6>
                 <v-checkbox
-                    v-if='storageOption != "uri"'
                     v-model="isFolder"
                     label="is folder"
                 ></v-checkbox>
+            </v-flex>
+            <v-flex xs6>
+                <v-text-field v-model='name' label='file name'></v-text-field>
             </v-flex>
         </v-layout>
         <v-layout row>
@@ -38,14 +40,11 @@
         <v-layout row>
             <v-flex xs5>
                 <v-select
-                    v-if='storageOption == "uri"'
+                    v-if='storageOption == "uri" && !isFolder'
                     v-model="extension"
                     :items="extensions"
                     label="file extension"
                 ></v-select>
-            </v-flex>
-            <v-flex xs6 offset-xs1>
-                <v-text-field v-if='storageOption == "uri"' v-model='name' label='file name'></v-text-field>
             </v-flex>
         </v-layout>
         <v-layout row>
@@ -81,7 +80,6 @@ export default {
     methods: {
         onLoaded(file) {
             let name = file.name.split('.');
-            this.filePointer.name = name[0];
 
             if (this.isFolder) {
                 this.filePointer.extension = 0;
