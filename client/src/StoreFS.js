@@ -51,15 +51,15 @@ const StoreFS = new Vuex.Store({
 
             file.index = Object.keys(state.added).length;
 
-            if (!state.added[file.parentKey]) {
+            if (!state.added[file.thesaurus.parentKey]) {
                 state.fsTree.push(fileToTree(file));
                 state.added[file.dataHash] = [state.fsTree.length - 1];
                 return;
             }
-            state.fsTree = changeTreeItem(state.fsTree, file, state.added[file.parentKey], (parent) => {
+            state.fsTree = changeTreeItem(state.fsTree, file, state.added[file.thesaurus.parentKey], (parent) => {
                 indexKid = parent.children.length - 1;
             });
-            state.added[file.dataHash] = state.added[file.parentKey].concat([indexKid]);
+            state.added[file.dataHash] = state.added[file.thesaurus.parentKey].concat([indexKid]);
         },
         updateFile(state, obj) {
             const {oldfile, file} = obj;
@@ -75,18 +75,18 @@ const StoreFS = new Vuex.Store({
             // Add it with same index
 
             // Can happen if the inreview file was accepted
-            if (!state.added[file.parentKey]) {
+            if (!state.added[file.thesaurus.parentKey]) {
                 delete state.added[oldfile.dataHash];
                 return;
             }
             state.fsTree = changeTreeItem(
                 state.fsTree,
                 file,
-                state.added[file.parentKey],
+                state.added[file.thesaurus.parentKey],
                 (parent) => {},
                 indexKid,
             );
-            state.added[file.dataHash] = state.added[file.parentKey].concat([indexKid]);
+            state.added[file.dataHash] = state.added[file.thesaurus.parentKey].concat([indexKid]);
         },
         removeFile(state, dataHash) {
             if (!state.added[dataHash]) return;
@@ -157,7 +157,7 @@ const StoreFS = new Vuex.Store({
         async getFolderRecursive({dispatch, commit}, hash) {
             const file = await dispatch('getFile', hash);
             commit('addFile', file);
-            file.filesPerFolder.forEach(async (dataHash) => {
+            file.thesaurus.kids.forEach(async (dataHash) => {
                 await dispatch('getFolderRecursive', dataHash)
             });
         },
@@ -197,7 +197,7 @@ const StoreFS = new Vuex.Store({
         },
         insertFile({state}, file) {
             console.log('insert file', JSON.stringify(file));
-
+            file.thesaurus.synseth = [ethers.utils.bigNumberify(ethers.utils.randomBytes(32))];
             const encoded = encodedParams(state.fscontract, 'insert', [file]);
 
             return state.acontract.run(

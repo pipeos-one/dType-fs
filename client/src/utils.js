@@ -57,7 +57,7 @@ export const getTreeBranch = (tree, path) => {
 export const fileToTree = (file) => {
     return {
         id: file.index,
-        name: `${file.pointer.name}.${UINT_TO_EXTENSION[file.pointer.extension]}`,
+        name: `${file.thesaurus.name}.${UINT_TO_EXTENSION[file.pointer.extension]}`,
         file: file.pointer.extension,
         children: file.children || [],
         fileType: file,

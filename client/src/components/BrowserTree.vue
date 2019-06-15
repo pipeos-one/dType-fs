@@ -157,8 +157,11 @@ export default {
             this.dialogAdd = false;
             this.$emit('add', {
                 pointer,
-                parentKey: this.parent.fileType.dataHash,
-                filesPerFolder: [],
+                thesaurus: {
+                    name: pointer.name,
+                    parentKey: this.parent.fileType.dataHash,
+                    kids: [],
+                }
             });
         },
         onVote(item) {
