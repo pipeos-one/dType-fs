@@ -60,6 +60,25 @@
                             v-on:vote="voteAction"
                         />
                     </v-dialog>
+
+                    <v-menu bottom left>
+                      <template v-slot:activator="{ on }">
+                        <v-avatar v-on="on" size="40px" @click="onSynsetActivate(item)">
+                            <img src="/icons/seth.svg">
+                        </v-avatar>
+                      </template>
+
+                      <v-list>
+                        <v-list-tile
+                          v-for="(synsetname, i) in synsets(item.fileType.thesaurus.synsethnames)"
+                          :key="i"
+                          @click="onSynsetSelect(item.fileType.thesaurus.synseth[i])"
+                        >
+                          <v-list-tile-title>{{ synsetname }}</v-list-tile-title>
+                        </v-list-tile>
+                      </v-list>
+                    </v-menu>
+
                 </template>
 
                 <!-- <v-btn flat icon v-if="active">
@@ -81,6 +100,8 @@
 </template>
 
 <script>
+import {ethers} from 'ethers';
+
 import {Vote} from '../gov';
 import {filePointerToUrl} from '../utils';
 import {EXTENSION_TO_ICON, UINT_TO_EXTENSION} from '../constants';
@@ -193,6 +214,19 @@ export default {
         },
         getPermissionColor(status) {
             return status === 3 ? '#A0C181' : (status ? '#424242' : '#757575');
+        },
+        synsets(synsethnames) {
+          return synsethnames.map((lemmas) => {
+            return lemmas.slice(0, 2).join(',');
+          });
+        },
+        onSynsetActivate(item) {
+          this.onAction = item.id;
+        },
+        onSynsetSelect(synsetid) {
+          this.onAction = false;
+          synsetid = ethers.utils.defaultAbiCoder.decode(['uint256'], synsetid);
+          window.open('http://192.168.1.140:8081/#/browser/' + synsetid, '_blank');
         },
     }
 }

@@ -15,7 +15,7 @@ export const getProvider = async function() {
     if (provider.network.chainId === 5777) {
         const url = 'http://192.168.1.140:8545';
         provider = new ethers.providers.JsonRpcProvider(url);
-        // wallet = provider.getSigner(0);
+        wallet = provider.getSigner(0);
         await waitAsync(1000);
     }
 

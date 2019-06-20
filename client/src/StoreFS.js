@@ -7,7 +7,6 @@ import {
     getContract,
     normalizeEthersObject,
     encodedParams,
-    calcPermission,
     getBasePermissions,
     getPermissions,
 } from './blockchain';
@@ -16,8 +15,10 @@ import {
     removeTreeItem,
     fileToTree,
 } from './utils.js';
+import SethEncoder from './SethEncoder';
 
 Vue.use(Vuex);
+const encoder = SethEncoder();
 
 const StoreFS = new Vuex.Store({
     state: {
@@ -27,6 +28,7 @@ const StoreFS = new Vuex.Store({
         acontract: null,
         percontract: null,
         votecontract: null,
+        synsetcontract: null,
         fsTree: [],
         added: {},
         dTypeFS,
@@ -131,6 +133,7 @@ const StoreFS = new Vuex.Store({
                 state.wallet,
             );
             commit('setContract', {contract: percontract, type: 'percontract'});
+
             const voteAddress = state.dTypeFS.votecontract.networks[
                 String(state.provider.network.chainId)
             ].address;
@@ -140,6 +143,16 @@ const StoreFS = new Vuex.Store({
                 state.wallet,
             );
             commit('setContract', {contract: votecontract, type: 'votecontract'});
+
+            const synsetAddress = state.dTypeFS.synsetcontract.networks[
+                String(state.provider.network.chainId)
+            ].address;
+            const synsetcontract = await getContract(
+                synsetAddress,
+                state.dTypeFS.synsetcontract.abi,
+                state.wallet,
+            );
+            commit('setContract', {contract: synsetcontract, type: 'synsetcontract'});
         },
         async getFile({state}, hash) {
             let struct = await state.fscontract.getByHash(hash);
@@ -151,6 +164,14 @@ const StoreFS = new Vuex.Store({
                 state.percontract,
                 struct.dataHash,
             );
+            struct.thesaurus.synsethnames = [];
+            for (const synsethash of struct.thesaurus.synseth) {
+                const synset = await state.synsetcontract.getByHash(synsethash);
+                const name = synset.words.map((word) => {
+                    return encoder.hex2string(word);
+                });
+                struct.thesaurus.synsethnames.push(name);
+            }
 
             return normalizeEthersObject(struct);
         },
